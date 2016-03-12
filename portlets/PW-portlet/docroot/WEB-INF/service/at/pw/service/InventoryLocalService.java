@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package at.pw.service;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -52,6 +53,7 @@ public interface InventoryLocalService extends BaseLocalService,
 	* @return the inventory that was added
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
 	public at.pw.model.Inventory addInventory(at.pw.model.Inventory inventory)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
@@ -71,6 +73,7 @@ public interface InventoryLocalService extends BaseLocalService,
 	* @throws PortalException if a inventory with the primary key could not be found
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public at.pw.model.Inventory deleteInventory(long inventoryId)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
@@ -82,6 +85,7 @@ public interface InventoryLocalService extends BaseLocalService,
 	* @return the inventory that was removed
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public at.pw.model.Inventory deleteInventory(
 		at.pw.model.Inventory inventory)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -220,6 +224,7 @@ public interface InventoryLocalService extends BaseLocalService,
 	* @return the inventory that was updated
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
 	public at.pw.model.Inventory updateInventory(
 		at.pw.model.Inventory inventory)
 		throws com.liferay.portal.kernel.exception.SystemException;
