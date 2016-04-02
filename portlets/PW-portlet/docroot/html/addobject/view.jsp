@@ -4,6 +4,7 @@
 String redirect = PortalUtil.getCurrentURL(renderRequest);
 String articalTemplate_cfg = GetterUtil.getString(portletPreferences.getValue("articalTemplate", ""));
 String inventarNumberPattern_cfg = GetterUtil.getString(portletPreferences.getValue("inventarNumberPattern", "#"));
+String articalEnabled_cfg = GetterUtil.getString(portletPreferences.getValue("articalEnabled", ""));
 %>
 
 <portlet:actionURL name='addObject' var="addObjectURL" windowState="normal" />
@@ -18,7 +19,7 @@ String inventarNumberPattern_cfg = GetterUtil.getString(portletPreferences.getVa
 			<%
 			List<DDMStructure> ddm_structures = DDMStructureLocalServiceUtil.getStructures(themeDisplay.getScopeGroupId());
 			for(DDMStructure ddm_structure : ddm_structures) {
-				if(ddm_structure.getClassName().equals("com.liferay.portlet.journal.model.JournalArticle")) {
+				if(ddm_structure.getClassName().equals("com.liferay.portlet.journal.model.JournalArticle") && articalEnabled_cfg.contains("id_" + ddm_structure.getStructureKey() + "_enabled")) {
 					%>
 					<aui:option value="<%= ddm_structure.getStructureKey() %>"><%= ddm_structure.getName(themeDisplay.getLocale()) %></aui:option>
 					<%
