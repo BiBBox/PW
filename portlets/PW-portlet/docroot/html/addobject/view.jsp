@@ -5,6 +5,8 @@ String redirect = PortalUtil.getCurrentURL(renderRequest);
 String articalTemplate_cfg = GetterUtil.getString(portletPreferences.getValue("articalTemplate", ""));
 String inventarNumberPattern_cfg = GetterUtil.getString(portletPreferences.getValue("inventarNumberPattern", "#"));
 String articalEnabled_cfg = GetterUtil.getString(portletPreferences.getValue("articalEnabled", ""));
+long webcontentFolderId_cfg = GetterUtil.getLong(portletPreferences.getValue("webcontentFolderId", "0"));
+long documentFolderId_cfg = GetterUtil.getLong(portletPreferences.getValue("documentFolderId", "0"));
 %>
 
 <portlet:actionURL name='addObject' var="addObjectURL" windowState="normal" />
@@ -14,6 +16,9 @@ String articalEnabled_cfg = GetterUtil.getString(portletPreferences.getValue("ar
 		<aui:input type="hidden" name="redirect" value="<%= redirect %>" />
 		<aui:input type="hidden" name="articaltemplate" value="<%= articalTemplate_cfg %>" />
 		<aui:input type="hidden" name="inventarNumberpattern" value="<%= inventarNumberPattern_cfg %>" />
+		<aui:input type="hidden" name="webcontentFolderId" value="<%= webcontentFolderId_cfg %>" />
+		<aui:input type="hidden" name="documentFolderId" value="<%= documentFolderId_cfg %>" />
+
 		<aui:input name="title" />
 		<aui:select label="Type" name="structureId">
 			<%

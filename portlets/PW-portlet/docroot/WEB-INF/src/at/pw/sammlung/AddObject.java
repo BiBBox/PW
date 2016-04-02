@@ -51,28 +51,37 @@ public class AddObject extends MVCPortlet {
 		String title = ParamUtil.getString(request, "title");
 		String structureId = ParamUtil.getString(request, "structureId");
 		String inventarNumberpattern = ParamUtil.getString(request, "inventarNumberpattern");
+	
+		long parentWebContentFolderID = ParamUtil.getLong(request, "webcontentFolderId");
+		long parentDocumentFolderID   = ParamUtil.getLong(request, "documentFolderId");
+
 		Inventory inventory = InventoryLocalServiceUtil.addInventoryWithAutoincrement();
+		
 		long inventarnummer = inventory.getInventarnummer();
 		ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
 		// Add WebContent
 		String articaltemplate = ParamUtil.getString(request, "articaltemplate");
-		long webcontetnId = addWebcontent(title, structureId, themeDisplay, articaltemplate, request, inventarnummer, inventarNumberpattern);
+		long webcontetnId = addWebcontent(title, structureId, themeDisplay, parentWebContentFolderID, articaltemplate, request, inventarnummer, inventarNumberpattern);
 		// Add Folder
-		long folderId = addFolder(title, themeDisplay.getScopeGroupId(), request);
+		
+		
+		long folderId = addFolder(title, parentDocumentFolderID, themeDisplay.getScopeGroupId(), request);
 		// Add Inventory
 		inventory.setWebcontentId(webcontetnId);
 		inventory.setFolderId(folderId);
 		inventory.setStructureId(structureId);
 		inventory.setStructuretemplateId("");
 		InventoryLocalServiceUtil.updateInventory(inventory);
+		
+		
+		
 	}
 	
  
-	private long addFolder(String title, long repositoryId, ActionRequest request) {
+	private long addFolder(String title, long parentFolderID, long repositoryId, ActionRequest request) {
 		try {
-			Long parentFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(DLFolder.class.getName(), request);
-			Folder folder = DLAppServiceUtil.addFolder(repositoryId, parentFolderId, title, title, serviceContext);
+			Folder folder = DLAppServiceUtil.addFolder(repositoryId, parentFolderID, title, title, serviceContext);
 			return folder.getFolderId();
 		} catch(Exception ex) {
 			System.err.println("[" + date_format_apache_error.format(new Date()) + "] [error] [PuchMuseum-portlet::at.graz.hmmc.liferay.portlet.puch.ImageUpload::createFolder] Error creating new Folder.");
@@ -81,7 +90,7 @@ public class AddObject extends MVCPortlet {
 		return 0;
 	}
 	
-	private long addWebcontent(String title, String structureId, ThemeDisplay themeDisplay, String articaltemplate, ActionRequest request, long inventarnummer, String inventarNumberpattern) {
+	private long addWebcontent(String title, String structureId, ThemeDisplay themeDisplay, long parentFolderID, String articaltemplate, ActionRequest request, long inventarnummer, String inventarNumberpattern) {
 		long userId = themeDisplay.getUserId();
 		long groupId = themeDisplay.getScopeGroupId();
 		Map<Locale, String> titleMap = getNameMap(title);
@@ -102,7 +111,7 @@ public class AddObject extends MVCPortlet {
 			serviceContext.setUserId(themeDisplay.getUserId());
 		
 			
-			JournalArticle articel = JournalArticleLocalServiceUtil.addArticle(userId, groupId, DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, titleMap, descriptionMap, content, structureId, ddmTemplateKey, serviceContext);
+			JournalArticle articel = JournalArticleLocalServiceUtil.addArticle(userId, groupId, parentFolderID, titleMap, descriptionMap, content, structureId, ddmTemplateKey, serviceContext);
 			return articel.getPrimaryKey();
 		} catch (PortalException e) {
 			// TODO Auto-generated catch block
