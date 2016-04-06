@@ -141,3 +141,21 @@ build.reihsr.properties
 .ivy/cache/com.liferay-com.liferay.sdk-default.xml
 
 .ivy/cache/com.google/google/ivydata-5.properties
+
+portlets/PW-portlet/.settings/org.eclipse.wst.common.project.facet.core.xml
+
+portlets/PW-portlet/.classpath
+
+.DS_Store
+
+build.mue.properties
+
+.ivy/cache/resolved-com.liferay-TEST-OF-LIFERAY-portlet-working@Heimos-MacBook-Pro.local.xml
+
+.ivy/cache/resolved-com.liferay-TEST-OF-LIFERAY-portlet-working@Heimos-MacBook-Pro.local.properties
+
+.ivy/cache/resolved-com.liferay-TEST-OF-LIFERAY-portlet-working@Heimos-MacBook-Pro.local-parents.properties
+
+.ivy/cache/resolved-com.liferay-TEST-OF-LIFERAY-portlet-working@Heimos-MacBook-Pro.local-parent.0.xml
+
+
