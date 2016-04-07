@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -18,16 +19,30 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.xml.Document;
+import com.liferay.portal.kernel.xml.DocumentException;
+import com.liferay.portal.kernel.xml.Node;
+import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.asset.model.AssetCategory;
+import com.liferay.portlet.asset.model.AssetVocabulary;
+import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
+import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleConstants;
+import com.liferay.portlet.journal.model.JournalStructure;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
+import com.liferay.portlet.journal.service.JournalStructureLocalServiceUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
 
 /**
@@ -47,7 +62,10 @@ public class AddObject extends MVCPortlet {
 	 * @param response
 	 * @throws Exception
 	 */
+	
+	
 	public void addObject(ActionRequest request, ActionResponse response) throws Exception {
+		
 		String title = ParamUtil.getString(request, "title");
 		String structureId = ParamUtil.getString(request, "structureId");
 		String inventarNumberpattern = ParamUtil.getString(request, "inventarNumberpattern");
@@ -58,22 +76,22 @@ public class AddObject extends MVCPortlet {
 		Inventory inventory = InventoryLocalServiceUtil.addInventoryWithAutoincrement();
 		
 		long inventarnummer = inventory.getInventarnummer();
+		
+		String foldername = String.format ("%06d_", inventarnummer) + title;
+		
 		ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
 		// Add WebContent
 		String articaltemplate = ParamUtil.getString(request, "articaltemplate");
 		long webcontetnId = addWebcontent(title, structureId, themeDisplay, parentWebContentFolderID, articaltemplate, request, inventarnummer, inventarNumberpattern);
 		// Add Folder
 		
-		
-		long folderId = addFolder(title, parentDocumentFolderID, themeDisplay.getScopeGroupId(), request);
+		long folderId = addFolder(foldername, parentDocumentFolderID, themeDisplay.getScopeGroupId(), request);
 		// Add Inventory
 		inventory.setWebcontentId(webcontetnId);
 		inventory.setFolderId(folderId);
 		inventory.setStructureId(structureId);
 		inventory.setStructuretemplateId("");
 		InventoryLocalServiceUtil.updateInventory(inventory);
-		
-		
 		
 	}
 	
@@ -112,6 +130,75 @@ public class AddObject extends MVCPortlet {
 		
 			
 			JournalArticle articel = JournalArticleLocalServiceUtil.addArticle(userId, groupId, parentFolderID, titleMap, descriptionMap, content, structureId, ddmTemplateKey, serviceContext);
+			
+			long classNameId = PortalUtil.getClassNameId(JournalArticle.class);
+			DDMStructure ddmStructure = DDMStructureLocalServiceUtil.getStructure(groupId, classNameId, structureId);
+					
+			String structureName = ddmStructure.getName(themeDisplay.getLocale());
+			System.out.println( "XXXXXX => " + structureName);
+					
+			AssetVocabulary av = AssetVocabularyLocalServiceUtil.getGroupVocabulary(groupId, "Sammlungsobjekt");
+			
+			System.out.println( "SAMMLUNGSOBJECT HAT KATEGORIEN ");
+			int index = 0;
+
+			final String[] tagNames = {};
+			final long[] assetCategoryIds = new long[1];
+			
+			final String defaultCategory = "beliebiges Objekt";
+			
+			boolean categorieFound = false;
+			long defaultCategoryID = 0;
+			
+			for(AssetCategory c : av.getCategories()) {
+				System.out.println( index + " = " + c.getName()+ ", id= " + c.getCategoryId());
+				
+				if (c.getName().equalsIgnoreCase(structureName)) {
+					assetCategoryIds[0] = c.getCategoryId();
+					categorieFound = true;
+				}
+				if (c.getName().equalsIgnoreCase(defaultCategory)) {
+					defaultCategoryID = c.getCategoryId();
+				}
+				index++;
+			}
+			
+			if (!categorieFound) {
+				assetCategoryIds[0] = defaultCategoryID;
+			}
+			
+			System.out.println("here we should look for the Template Name, If this matches with a category, the category is set, otherwise we set the the category generalObjekt");
+			System.out.println(structureId);
+			
+			AssetEntryLocalServiceUtil.updateEntry(userId, groupId, JournalArticle.class.getName(), articel.getResourcePrimKey(), assetCategoryIds, tagNames);
+			// set the main categories of the article according to the template
+			
+			//update the article
+			try {
+				Document doc = SAXReaderUtil.read (articel.getContent());
+				System.out.println (doc.asXML());
+				
+				String fieldValue = ""; 
+				String fieldName = "Inventarnummer"; 
+				
+				if(Validator.isNotNull(doc)) { 
+								
+					Node fieldContent = doc.selectSingleNode("//*/dynamic-element[@name='"+fieldName+"']/dynamic-content"); 
+						if(fieldContent != null) { 
+								 fieldValue = fieldContent.getText(); 
+								 System.out.println("Inventarnummer = " + fieldValue);
+						}
+				}
+				
+				
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+			
+			
 			return articel.getPrimaryKey();
 		} catch (PortalException e) {
 			// TODO Auto-generated catch block
