@@ -466,6 +466,7 @@ if (Validator.isNotNull(content)) {
 				</c:when>
 				<c:otherwise>
 
+
 					<%
 					Fields ddmFields = null;
 
@@ -479,6 +480,7 @@ if (Validator.isNotNull(content)) {
 						requestedLanguageId = toLanguageId;
 					}
 					%>
+        
 
 					<liferay-ddm:html
 						checkRequired="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>"
@@ -488,7 +490,8 @@ if (Validator.isNotNull(content)) {
 						repeatable="<%= Validator.isNull(toLanguageId) %>"
 						requestedLocale="<%= LocaleUtil.fromLanguageId(requestedLanguageId) %>"
 					/>
-
+				   
+				 				   				   
 				</c:otherwise>
 			</c:choose>
 

@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.simple.Element;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.theme.ThemeDisplay;
@@ -82,10 +83,12 @@ public class AddObject extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
 		// Add WebContent
 		String articaltemplate = ParamUtil.getString(request, "articaltemplate");
-		long webcontetnId = addWebcontent(title, structureId, themeDisplay, parentWebContentFolderID, articaltemplate, request, inventarnummer, inventarNumberpattern);
 		// Add Folder
 		
 		long folderId = addFolder(foldername, parentDocumentFolderID, themeDisplay.getScopeGroupId(), request);
+		
+		long webcontetnId = addWebcontent(title, structureId, themeDisplay, parentWebContentFolderID, articaltemplate, request, inventarnummer, inventarNumberpattern, folderId);
+		
 		// Add Inventory
 		inventory.setWebcontentId(webcontetnId);
 		inventory.setFolderId(folderId);
@@ -108,7 +111,9 @@ public class AddObject extends MVCPortlet {
 		return 0;
 	}
 	
-	private long addWebcontent(String title, String structureId, ThemeDisplay themeDisplay, long parentFolderID, String articaltemplate, ActionRequest request, long inventarnummer, String inventarNumberpattern) {
+	private long addWebcontent(String title, String structureId, ThemeDisplay themeDisplay, long parentFolderID, String articaltemplate, ActionRequest request, long inventarnummer, String inventarNumberpattern, long folderID) {
+		
+		
 		long userId = themeDisplay.getUserId();
 		long groupId = themeDisplay.getScopeGroupId();
 		Map<Locale, String> titleMap = getNameMap(title);
@@ -116,7 +121,10 @@ public class AddObject extends MVCPortlet {
 		DecimalFormat myFormatter = new DecimalFormat(inventarNumberpattern);
 		System.out.println(inventarNumberpattern);
 		System.out.println(myFormatter.format(inventarnummer));
-		String content = "<?xml version='1.0' encoding='UTF-8'?><root default-locale=\"de_DE\" available-locales=\"de_DE\"><dynamic-element name=\"Inventarnummer\" type=\"text\" index-type=\"keyword\" index=\"0\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + myFormatter.format(inventarnummer) + "]]></dynamic-content></dynamic-element></root>";
+		
+		
+		
+		String content = "<?xml version='1.0' encoding='UTF-8'?><root default-locale=\"de_DE\" available-locales=\"de_DE\"><dynamic-element name=\"_RON_Inventarnummer\" type=\"text\" index-type=\"keyword\" index=\"0\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + myFormatter.format(inventarnummer) + "]]></dynamic-content></dynamic-element></root>";
 		String ddmTemplateKey = "0";
 		for(String id : articaltemplate.split(";")) {
 			if(id.startsWith(structureId + "_")) {
@@ -127,7 +135,6 @@ public class AddObject extends MVCPortlet {
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(DLFolder.class.getName(), request);
 			serviceContext.setScopeGroupId(themeDisplay.getScopeGroupId());
 			serviceContext.setUserId(themeDisplay.getUserId());
-		
 			
 			JournalArticle articel = JournalArticleLocalServiceUtil.addArticle(userId, groupId, parentFolderID, titleMap, descriptionMap, content, structureId, ddmTemplateKey, serviceContext);
 			
@@ -135,7 +142,6 @@ public class AddObject extends MVCPortlet {
 			DDMStructure ddmStructure = DDMStructureLocalServiceUtil.getStructure(groupId, classNameId, structureId);
 					
 			String structureName = ddmStructure.getName(themeDisplay.getLocale());
-			System.out.println( "XXXXXX => " + structureName);
 					
 			AssetVocabulary av = AssetVocabularyLocalServiceUtil.getGroupVocabulary(groupId, "Sammlungsobjekt");
 			
@@ -173,6 +179,16 @@ public class AddObject extends MVCPortlet {
 			AssetEntryLocalServiceUtil.updateEntry(userId, groupId, JournalArticle.class.getName(), articel.getResourcePrimKey(), assetCategoryIds, tagNames);
 			// set the main categories of the article according to the template
 			
+			String documentFolderURL = "http://sammlung.puchwiki.org/dokumente";
+			
+			documentFolderURL = "http://localhost:8080/web/guest/dokumente";
+			documentFolderURL += "?p_p_id=20&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&_20_struts_action=%2Fdocument_library%2Fview&_20_folderId=";
+			documentFolderURL += folderID;
+			documentFolderURL += "&_20_viewEntries=true&_20_viewFolders=false&_20_action=browseFolder&_20_displayStyle=icon&_20_navigation=home&_20_searchType=2&_20_viewEntriesPage=false&_20_saveDisplayStyle=1";
+			
+	
+			String content_HID_Dokument_Folder_ID = "<dynamic-element name=\"_HID_Dokument-Folder-ID\" type=\"text\" index-type=\"keyword\" index=\"0\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + documentFolderURL + "]]></dynamic-content></dynamic-element>";
+			
 			//update the article
 			try {
 				Document doc = SAXReaderUtil.read (articel.getContent());
@@ -181,6 +197,9 @@ public class AddObject extends MVCPortlet {
 				String fieldValue = ""; 
 				String fieldName = "Inventarnummer"; 
 				
+				Node root =  doc.getRootElement();
+				
+				
 				if(Validator.isNotNull(doc)) { 
 								
 					Node fieldContent = doc.selectSingleNode("//*/dynamic-element[@name='"+fieldName+"']/dynamic-content"); 
@@ -188,6 +207,9 @@ public class AddObject extends MVCPortlet {
 								 fieldValue = fieldContent.getText(); 
 								 System.out.println("Inventarnummer = " + fieldValue);
 						}
+						
+						
+						
 				}
 				
 				
