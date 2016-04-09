@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.kernel.xml.simple.Element;
+import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.theme.ThemeDisplay;
@@ -124,7 +124,26 @@ public class AddObject extends MVCPortlet {
 		
 		
 		
-		String content = "<?xml version='1.0' encoding='UTF-8'?><root default-locale=\"de_DE\" available-locales=\"de_DE\"><dynamic-element name=\"_RON_Inventarnummer\" type=\"text\" index-type=\"keyword\" index=\"0\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + myFormatter.format(inventarnummer) + "]]></dynamic-content></dynamic-element></root>";
+		String content = "<?xml version='1.0' encoding='UTF-8'?><root default-locale=\"de_DE\" available-locales=\"de_DE\"> ";
+				
+				
+		content +=		"<dynamic-element name=\"_RON_Inventarnummer\" type=\"text\" index-type=\"keyword\" index=\"0\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + myFormatter.format(inventarnummer) + "]]></dynamic-content></dynamic-element>";
+		
+		String documentFolderURL = "http://sammlung.puchwiki.org/dokumente";
+		
+		documentFolderURL = "http://localhost:8080/web/guest/dokumente";
+		documentFolderURL += "?p_p_id=20&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&_20_struts_action=%2Fdocument_library%2Fview&_20_folderId=";
+		documentFolderURL += folderID;
+		documentFolderURL += "&_20_viewEntries=true&_20_viewFolders=false&_20_action=browseFolder&_20_displayStyle=icon&_20_navigation=home&_20_searchType=2&_20_viewEntriesPage=false&_20_saveDisplayStyle=1";
+		
+
+
+		String content_HID_Dokument_Folder_ID = "<dynamic-element name=\"_HID_DokumentFolderID\" type=\"text\" index-type=\"keyword\" index=\"1\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + documentFolderURL + "]]></dynamic-content></dynamic-element>";
+		
+	    content += content_HID_Dokument_Folder_ID;
+		content +=	"</root>";
+		
+		
 		String ddmTemplateKey = "0";
 		for(String id : articaltemplate.split(";")) {
 			if(id.startsWith(structureId + "_")) {
@@ -145,7 +164,7 @@ public class AddObject extends MVCPortlet {
 					
 			AssetVocabulary av = AssetVocabularyLocalServiceUtil.getGroupVocabulary(groupId, "Sammlungsobjekt");
 			
-			System.out.println( "SAMMLUNGSOBJECT HAT KATEGORIEN ");
+			System.out.println( "SAMMLUNGSOBJEKT HAT KATEGORIEN ");
 			int index = 0;
 
 			final String[] tagNames = {};
@@ -179,15 +198,6 @@ public class AddObject extends MVCPortlet {
 			AssetEntryLocalServiceUtil.updateEntry(userId, groupId, JournalArticle.class.getName(), articel.getResourcePrimKey(), assetCategoryIds, tagNames);
 			// set the main categories of the article according to the template
 			
-			String documentFolderURL = "http://sammlung.puchwiki.org/dokumente";
-			
-			documentFolderURL = "http://localhost:8080/web/guest/dokumente";
-			documentFolderURL += "?p_p_id=20&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&_20_struts_action=%2Fdocument_library%2Fview&_20_folderId=";
-			documentFolderURL += folderID;
-			documentFolderURL += "&_20_viewEntries=true&_20_viewFolders=false&_20_action=browseFolder&_20_displayStyle=icon&_20_navigation=home&_20_searchType=2&_20_viewEntriesPage=false&_20_saveDisplayStyle=1";
-			
-	
-			String content_HID_Dokument_Folder_ID = "<dynamic-element name=\"_HID_Dokument-Folder-ID\" type=\"text\" index-type=\"keyword\" index=\"0\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + documentFolderURL + "]]></dynamic-content></dynamic-element>";
 			
 			//update the article
 			try {
@@ -197,9 +207,8 @@ public class AddObject extends MVCPortlet {
 				String fieldValue = ""; 
 				String fieldName = "Inventarnummer"; 
 				
-				Node root =  doc.getRootElement();
-				
-				
+				Element root = doc.getRootElement();
+								
 				if(Validator.isNotNull(doc)) { 
 								
 					Node fieldContent = doc.selectSingleNode("//*/dynamic-element[@name='"+fieldName+"']/dynamic-content"); 
@@ -207,12 +216,11 @@ public class AddObject extends MVCPortlet {
 								 fieldValue = fieldContent.getText(); 
 								 System.out.println("Inventarnummer = " + fieldValue);
 						}
-						
-						
-						
 				}
 				
-				
+		//		JournalArticleLocalServiceUtil.updateContent (groupId, articel.getArticleId(), articel.getVersion(), doc.asXML());
+
+			
 			} catch (DocumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
