@@ -5,6 +5,9 @@ hideFields()
 function hideFields() {
 
 	YUI().use('node', function (Y) {
+		
+		
+
 		var allFieldWrappers = Y.all(fieldWrapperSelector);
 		var fieldsDisplay = [];
 		allFieldWrappers.each(function (elFieldWrapper) {			

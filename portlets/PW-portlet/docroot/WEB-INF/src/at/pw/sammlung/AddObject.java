@@ -103,6 +103,8 @@ public class AddObject extends MVCPortlet {
 		try {
 			ServiceContext serviceContext = ServiceContextFactory.getInstance(DLFolder.class.getName(), request);
 			Folder folder = DLAppServiceUtil.addFolder(repositoryId, parentFolderID, title, title, serviceContext);
+			
+			
 			return folder.getFolderId();
 		} catch(Exception ex) {
 			System.err.println("[" + date_format_apache_error.format(new Date()) + "] [error] [PuchMuseum-portlet::at.graz.hmmc.liferay.portlet.puch.ImageUpload::createFolder] Error creating new Folder.");
@@ -131,13 +133,13 @@ public class AddObject extends MVCPortlet {
 		
 		String documentFolderURL = "http://sammlung.puchwiki.org/dokumente";
 		
+/*	
 		documentFolderURL = "http://localhost:8080/web/guest/dokumente";
 		documentFolderURL += "?p_p_id=20&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&_20_struts_action=%2Fdocument_library%2Fview&_20_folderId=";
 		documentFolderURL += folderID;
 		documentFolderURL += "&_20_viewEntries=true&_20_viewFolders=false&_20_action=browseFolder&_20_displayStyle=icon&_20_navigation=home&_20_searchType=2&_20_viewEntriesPage=false&_20_saveDisplayStyle=1";
-		
-
-
+*/
+		documentFolderURL = String.format ("%d", folderID) ;
 		String content_HID_Dokument_Folder_ID = "<dynamic-element name=\"_HID_DokumentFolderID\" type=\"text\" index-type=\"keyword\" index=\"1\"><dynamic-content language-id=\"de_DE\"><![CDATA[" + documentFolderURL + "]]></dynamic-content></dynamic-element>";
 		
 	    content += content_HID_Dokument_Folder_ID;
