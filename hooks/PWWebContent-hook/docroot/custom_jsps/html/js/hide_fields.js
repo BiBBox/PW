@@ -6,7 +6,7 @@ function hideFields() {
 
 	YUI().use('node', function (Y) {
 		
-		
+		console.log("hook for hiding field by prefix");
 
 		var allFieldWrappers = Y.all(fieldWrapperSelector);
 		var fieldsDisplay = [];
