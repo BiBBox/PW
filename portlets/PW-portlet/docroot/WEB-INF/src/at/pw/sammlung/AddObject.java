@@ -159,6 +159,8 @@ public class AddObject extends MVCPortlet {
 			
 			JournalArticle articel = JournalArticleLocalServiceUtil.addArticle(userId, groupId, parentFolderID, titleMap, descriptionMap, content, structureId, ddmTemplateKey, serviceContext);
 			
+			System.out.println("ARTICLE-CLASS = " + JournalArticle.class);
+			
 			long classNameId = PortalUtil.getClassNameId(JournalArticle.class);
 			DDMStructure ddmStructure = DDMStructureLocalServiceUtil.getStructure(groupId, classNameId, structureId);
 					
