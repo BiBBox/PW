@@ -201,37 +201,7 @@ public class AddObject extends MVCPortlet {
 			
 			AssetEntryLocalServiceUtil.updateEntry(userId, groupId, JournalArticle.class.getName(), articel.getResourcePrimKey(), assetCategoryIds, tagNames);
 			// set the main categories of the article according to the template
-			
-			
-			//update the article
-			try {
-				Document doc = SAXReaderUtil.read (articel.getContent());
-				System.out.println (doc.asXML());
 				
-				String fieldValue = ""; 
-				String fieldName = "Inventarnummer"; 
-				
-				Element root = doc.getRootElement();
-								
-				if(Validator.isNotNull(doc)) { 
-								
-					Node fieldContent = doc.selectSingleNode("//*/dynamic-element[@name='"+fieldName+"']/dynamic-content"); 
-						if(fieldContent != null) { 
-								 fieldValue = fieldContent.getText(); 
-								 System.out.println("Inventarnummer = " + fieldValue);
-						}
-				}
-				
-		//		JournalArticleLocalServiceUtil.updateContent (groupId, articel.getArticleId(), articel.getVersion(), doc.asXML());
-
-			
-			} catch (DocumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-
-			
 			
 			return articel.getPrimaryKey();
 		} catch (PortalException e) {

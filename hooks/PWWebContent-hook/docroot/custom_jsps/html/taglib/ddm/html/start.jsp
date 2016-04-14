@@ -21,12 +21,13 @@
 	<c:when test="<%= permissionChecker.isOmniadmin() %>">
 	</c:when>
 	<c:otherwise>
-		<liferay-util:html-bottom>
-			<script src="/html/js/hide_fields.js" />
-		</liferay-util:html-bottom>
+		
 	</c:otherwise>
 </c:choose>
 
+<liferay-util:html-bottom>
+			<script src="/html/js/hide_fields.js" />
+</liferay-util:html-bottom>
 
 <div class="lfr-ddm-container" id="<%= randomNamespace %>">
 	<c:if test="<%= Validator.isNotNull(xsd) %>">
@@ -34,25 +35,30 @@
 		<%
 		pageContext.setAttribute("checkRequired", checkRequired);
 		%>
-
-
-		<% String htmlResponse = DDMXSDUtil.getHTML(pageContext, xsd, fields, portletResponse.getNamespace(), fieldsNamespace, mode, readOnly, requestedLocale);  %>
-	
 		
+		<h1> <%=articleID %> </h1>
+
+		<% String htmlResponse = DDMXSDUtil.getHTML(pageContext, xsd, fields, portletResponse.getNamespace(), fieldsNamespace, mode, readOnly, requestedLocale);  
+			String structureIDs = "";
+			Set<String> myFields = fields.getNames();
+	    	for (String f : myFields) {
+	    		System.out.println("***** > " + f);
+	    	}
+	    %>
 		<%
   			  ServletContext hookContext = ServletContextPool.get("PWWebContent-hook");
    			 if (hookContext != null) {
 		%>
         	  <liferay-util:include page="/custom_jsps/html/taglib/ddm/html/html_filter_loader.jsp" servletContext="<%=hookContext%>" >
         		  	 <liferay-util:param name="htmlResponse" value="<%= htmlResponse %>" />
+        		  	 <liferay-util:param name="structureIDs" value="<%= htmlResponse %>" />
         	  </liferay-util:include>
 		<%
    		 							   }
 		%>
-
+		
+<
 		<aui:input id="<%= fieldsDisplayInputId %>" name="<%= fieldsDisplayInputName %>" type="hidden" />
-
-
 		<aui:script use="liferay-ddm-repeatable-fields">
 			new Liferay.DDM.RepeatableFields(
 				{
@@ -68,5 +74,6 @@
 				}
 			);
 		</aui:script>
+
 
 	</c:if>

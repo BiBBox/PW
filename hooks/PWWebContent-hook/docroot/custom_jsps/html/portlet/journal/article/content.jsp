@@ -481,13 +481,26 @@ if (Validator.isNotNull(content)) {
 					}
 					%>
         
-
+					<% System.out.println("articleID   = " + article.getId() ); %>
+					<% System.out.println("structureID = " + article.getStructureId() ); 
+					Set<String> myFields = ddmFields.getNames();
+			    	for (String f : myFields) {
+			    		System.out.println("$$$$$ > " + f);
+			    	}
+					
+					
+					%>
+		
+					
+					<h1> <%=article.getId()%> </h1>
+					
 					<liferay-ddm:html
 						checkRequired="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>"
 						classNameId="<%= PortalUtil.getClassNameId(DDMStructure.class) %>"
 						classPK="<%= ddmStructure.getStructureId() %>"
 						fields="<%= ddmFields %>"
 						repeatable="<%= Validator.isNull(toLanguageId) %>"
+						articleID="<%= article.getId() %>"
 						requestedLocale="<%= LocaleUtil.fromLanguageId(requestedLanguageId) %>"
 					/>
 				   
