@@ -35,7 +35,20 @@
 		pageContext.setAttribute("checkRequired", checkRequired);
 		%>
 
-		<%= DDMXSDUtil.getHTML(pageContext, xsd, fields, portletResponse.getNamespace(), fieldsNamespace, mode, readOnly, requestedLocale) %>
+
+		<% String htmlResponse = DDMXSDUtil.getHTML(pageContext, xsd, fields, portletResponse.getNamespace(), fieldsNamespace, mode, readOnly, requestedLocale);  %>
+	
+		
+		<%
+  			  ServletContext hookContext = ServletContextPool.get("PWWebContent-hook");
+   			 if (hookContext != null) {
+		%>
+        	  <liferay-util:include page="/custom_jsps/html/taglib/ddm/html/html_filter_loader.jsp" servletContext="<%=hookContext%>" >
+        		  	 <liferay-util:param name="htmlResponse" value="<%= htmlResponse %>" />
+        	  </liferay-util:include>
+		<%
+   		 							   }
+		%>
 
 		<aui:input id="<%= fieldsDisplayInputId %>" name="<%= fieldsDisplayInputName %>" type="hidden" />
 
